@@ -81,11 +81,17 @@ def get_json_for_stored_file(filename, index):
     'summary' - summary of candidate (up to 3 sentences)
     'strongest_skills' - strongest skills found in document
     'challenges' - professional highlights found in Document
-
+    
+    Prepare CSV {'profession':...
+    ...
+    
+    Double check your output that it does not contain ```json ``` as enclosures 
        Output:
 
                 Provide the content of a single JSON file that has keys for every document
-                Provide only the generated json enclosed in {}. Do not add any additional symbols to it, including markdown.
+                !!! Provide only the generated json enclosed in {}. Do not add any additional symbols to it, including markdown.
+                !!! Output will be directly used in parsing so do not even add ```json ``` 
+                Output should be ready for parsing without postprocessing
     [/INST]
     """
 
@@ -111,7 +117,16 @@ def analyze_cvs():
     for each in files_in_chroma:
         candidate = get_json_for_stored_file(each, index)
         print(candidate)
-        candidates.append(candidate.response)
+        candidate_json = candidate.response
+        start = candidate_json.find('{')
+        end = candidate_json.rfind('}')
+
+        if start == -1 or end == -1 or start > end:
+            json_obj = '{}'
+        else:
+            json_obj = candidate_json[start:end + 1]
+
+        candidates.append(json_obj)
 
     return candidates
 
